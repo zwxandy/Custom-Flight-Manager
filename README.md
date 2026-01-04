@@ -21,5 +21,5 @@ Finally, your own database will be created and updated during using the APP.
 
 ## Something to further improve
 - [ ] Change the overlapping routes into arcs
-- [ ] Directly import the data from existing apps (e.g., 纵横航旅) conveniently
+- [ ] Directly import the data from existing apps (e.g., 航旅纵横) conveniently
 - [ ] The trip to the United States should be changed to a trans-Pacific route
