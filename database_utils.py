@@ -149,4 +149,3 @@ def update_flight_in_db(flight_id, flight_record):
     ))
     conn.commit()
     conn.close()
-

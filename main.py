@@ -540,6 +540,7 @@ if st.session_state.flights:
     # 使用streamlit-folium渲染地图
     st_folium(flight_map, width=1200, height=600)
     
+    
     # 显示航班列表（可选）
     with st.expander("查看所有航班记录", expanded=True):
         df = pd.DataFrame([
