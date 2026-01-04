@@ -12,6 +12,7 @@ import pandas as pd
 from datetime import datetime
 import database_utils
 
+
 # 页面配置
 st.set_page_config(
     page_title="Xuan的私人航班管家",
