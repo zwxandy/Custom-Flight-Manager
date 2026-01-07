@@ -11,13 +11,18 @@ from geopy.distance import great_circle
 import pandas as pd
 from datetime import datetime
 import database_utils
+import ui
 
 # 页面配置
 st.set_page_config(
     page_title="Xuan的私人航班管家",
     page_icon="✈️",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
+
+# 加载自定义CSS样式
+ui.load_custom_css()
 
 # 初始化数据库
 database_utils.init_database()
@@ -177,48 +182,71 @@ def create_flight_map(flights_data):
         m = folium.Map(location=[39.9042, 116.4074], zoom_start=2)
     
     # 绘制每条航线
+    colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#00f2fe', '#43e97b', '#fa709a']
     for idx, flight in enumerate(flights_data):
         dep_coords = flight.get('departure_coords')
         arr_coords = flight.get('arrival_coords')
         
         if dep_coords and arr_coords:
-            # 添加出发地marker
+            color = colors[idx % len(colors)]
+            
+            # 添加出发地marker（使用更美观的图标）
             folium.Marker(
                 location=dep_coords,
-                popup=f"出发: {flight['departure_city']}",
+                popup=f"""
+                <div style="font-family: Arial; min-width: 150px;">
+                    <h4 style="margin: 5px 0; color: #667eea;">✈️ 出发地</h4>
+                    <p style="margin: 5px 0;"><strong>{flight['departure_city']}</strong></p>
+                    <p style="margin: 5px 0; font-size: 0.9em; color: #666;">日期: {flight['date']}</p>
+                </div>
+                """,
                 tooltip=f"出发: {flight['departure_city']}",
-                icon=folium.Icon(color='green', icon='plane', prefix='fa')
+                icon=folium.Icon(color='green', icon='plane', prefix='fa', icon_color='white')
             ).add_to(m)
             
             # 添加到达地marker
             folium.Marker(
                 location=arr_coords,
-                popup=f"到达: {flight['arrival_city']}",
+                popup=f"""
+                <div style="font-family: Arial; min-width: 150px;">
+                    <h4 style="margin: 5px 0; color: #764ba2;">✈️ 到达地</h4>
+                    <p style="margin: 5px 0;"><strong>{flight['arrival_city']}</strong></p>
+                    <p style="margin: 5px 0; font-size: 0.9em; color: #666;">日期: {flight['date']}</p>
+                </div>
+                """,
                 tooltip=f"到达: {flight['arrival_city']}",
-                icon=folium.Icon(color='red', icon='plane', prefix='fa')
+                icon=folium.Icon(color='red', icon='plane', prefix='fa', icon_color='white')
             ).add_to(m)
             
-            # 绘制飞行路线（大圆弧）
+            # 绘制飞行路线（使用更美观的样式）
+            flight_time_str = format_flight_time(flight.get('flight_time'))
             folium.PolyLine(
                 locations=[dep_coords, arr_coords],
-                popup=f"{flight['departure_city']} → {flight['arrival_city']}<br>"
-                      f"日期: {flight['date']}<br>"
-                      f"距离: {flight.get('distance', 'N/A')} 公里",
-                color='blue',
-                weight=2.5,
-                opacity=0.7,
-                dashArray='5, 5'
+                popup=f"""
+                <div style="font-family: Arial; min-width: 200px;">
+                    <h4 style="margin: 5px 0; color: {color};">
+                        {flight['departure_city']} → {flight['arrival_city']}
+                    </h4>
+                    <p style="margin: 5px 0;"><strong>日期:</strong> {flight['date']}</p>
+                    <p style="margin: 5px 0;"><strong>距离:</strong> {flight.get('distance', 'N/A'):.0f} 公里</p>
+                    <p style="margin: 5px 0;"><strong>飞行时间:</strong> {flight_time_str}</p>
+                </div>
+                """,
+                color=color,
+                weight=3,
+                opacity=0.8,
+                dashArray='10, 5'
             ).add_to(m)
     
     return m
 
 # 主界面
-st.title("✈️ Xuan的私人航班管家")
-st.markdown("---")
+ui.render_main_title()
 
 # 侧边栏：输入表单
 with st.sidebar:
-    st.header("添加航班记录")
+    st.markdown("### ✈️ 添加航班记录")
+    st.markdown("")
     
     departure_city = st.text_input("出发城市", placeholder="例如: Beijing")
     arrival_city = st.text_input("到达城市", placeholder="例如: San Francisco")
@@ -276,21 +304,14 @@ with st.sidebar:
                 )
                 
                 # 显示确认对话框
-                st.info("📋 请确认航班信息")
-                st.markdown("---")
+                st.markdown("")
+                st.info("📋 **请确认航班信息**")
+                st.markdown("")
                 
-                col_info1, col_info2 = st.columns(2)
-                with col_info1:
-                    st.write(f"**出发城市：** {pending_data['departure_city']}")
-                    st.write(f"**到达城市：** {pending_data['arrival_city']}")
-                    st.write(f"**出行日期：** {pending_data['date'].strftime('%Y-%m-%d')}")
-                with col_info2:
-                    st.write(f"**飞行距离：** {distance:.2f} 公里")
-                    flight_time_str = format_flight_time(total_flight_time if total_flight_time > 0 else None)
-                    st.write(f"**飞行时间：** {flight_time_str}")
-                    st.write(f"**坐标：** ({dep_coords[0]:.4f}, {dep_coords[1]:.4f}) → ({arr_coords[0]:.4f}, {arr_coords[1]:.4f})")
+                flight_time_str = format_flight_time(total_flight_time if total_flight_time > 0 else None)
+                ui.render_confirmation_info(pending_data, distance, flight_time_str, dep_coords, arr_coords)
                 
-                st.markdown("---")
+                st.markdown("")
                 
                 col_confirm1, col_confirm2 = st.columns(2)
                 with col_confirm1:
@@ -330,31 +351,41 @@ with st.sidebar:
                 st.rerun()
     
     st.markdown("---")
-    st.header("航班数据管理")
+    st.markdown("### 📝 航班数据管理")
+    st.markdown("")
+    
+    # 一键导入外部软件数据按钮
+    if st.button("📥 一键导入外部软件数据（如航旅纵横）", use_container_width=True, type="secondary"):
+        st.info("功能开发中，敬请期待（可能调API难度较大🧐）...")
+    
+    st.markdown("")
     
     # 显示航班记录列表（按日期排序）
     if st.session_state.flights:
-        st.subheader("航班记录列表")
+        st.markdown("#### 航班记录列表")
         # 按日期排序（从晚到早，最新的在最上面）
         sorted_flights = sorted(st.session_state.flights, key=lambda x: x['date'], reverse=True)
         for idx, flight in enumerate(sorted_flights):
             with st.container():
-                col1, col2, col3, col4 = st.columns([3, 3, 2, 2])
+                # 使用卡片样式显示航班记录
+                flight_time_str = format_flight_time(flight.get('flight_time'))
+                ui.render_flight_card(
+                    flight['departure_city'],
+                    flight['arrival_city'],
+                    flight['date'],
+                    flight['distance'],
+                    flight_time_str
+                )
+                
+                col1, col2 = st.columns(2)
                 
                 with col1:
-                    st.write(f"**{flight['departure_city']}** → **{flight['arrival_city']}**")
-                
-                with col2:
-                    flight_time_str = format_flight_time(flight.get('flight_time'))
-                    st.write(f"日期: {flight['date']} | 距离: {flight['distance']:.2f} km | 时间: {flight_time_str}")
-                
-                with col3:
                     edit_key = f"edit_{flight['id']}"
                     if st.button("✏️ 编辑", key=edit_key, use_container_width=True):
                         st.session_state.editing_flight_id = flight['id']
                         st.rerun()
                 
-                with col4:
+                with col2:
                     delete_key = f"delete_{flight['id']}"
                     if st.button("🗑️ 删除", key=delete_key, use_container_width=True):
                         st.session_state.deleting_flight_id = flight['id']
@@ -362,24 +393,28 @@ with st.sidebar:
                 
                 # 删除确认对话框
                 if st.session_state.deleting_flight_id == flight['id']:
-                    st.warning(f"⚠️ 确定要删除航班记录：**{flight['departure_city']} → {flight['arrival_city']}** 吗？此操作不可恢复！")
+                    st.markdown("")
+                    st.warning(f"⚠️ **确定要删除航班记录吗？**\n\n**{flight['departure_city']} → {flight['arrival_city']}**\n\n此操作不可恢复！")
+                    st.markdown("")
                     confirm_col1, confirm_col2 = st.columns(2)
                     with confirm_col1:
                         if st.button("✅ 确认删除", key=f"confirm_delete_{flight['id']}", type="primary", use_container_width=True):
                             database_utils.delete_flight_from_db(flight['id'])
                             reload_flights()
                             st.session_state.deleting_flight_id = None
-                            st.success(f"已删除航班: {flight['departure_city']} → {flight['arrival_city']}")
+                            st.success(f"✅ 已删除航班: {flight['departure_city']} → {flight['arrival_city']}")
                             st.rerun()
                     with confirm_col2:
                         if st.button("❌ 取消", key=f"cancel_delete_{flight['id']}", use_container_width=True):
                             st.session_state.deleting_flight_id = None
                             st.rerun()
+                    st.markdown("---")
                 
                 # 编辑表单
                 if st.session_state.editing_flight_id == flight['id']:
                     st.markdown("---")
-                    st.write("**编辑航班记录**")
+                    st.markdown("#### ✏️ 编辑航班记录")
+                    st.markdown("")
                     
                     edit_col1, edit_col2 = st.columns(2)
                     with edit_col1:
@@ -487,16 +522,19 @@ with st.sidebar:
         st.info("暂无航班记录")
     
     st.markdown("---")
+    st.markdown("")
     if st.button("🗑️ 清空所有记录", type="secondary", use_container_width=True):
         if st.session_state.flights:
             database_utils.clear_all_flights_from_db()
             reload_flights()
-            st.success("已清空所有航班记录")
+            st.success("✅ 已清空所有航班记录")
             st.rerun()
         else:
-            st.info("没有可清空的记录")
+            st.info("💡 没有可清空的记录")
 
 # 主内容区：统计信息和地图
+st.markdown("### 📊 飞行统计概览")
+
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -516,12 +554,21 @@ with col1:
             # 如果没有坐标信息，无法判断，暂时计入国际
             international_count += 1
     
-    # 显示总航班次数，并在value中添加括号补充信息
-    st.metric("总航班次数", f"{total_flights} (国内{domestic_count}，国外{international_count})")
+    # 使用自定义样式显示总航班次数
+    ui.render_metric_card(
+        "✈️ 总航班次数",
+        str(total_flights),
+        f"国内 {domestic_count} | 国际 {international_count}"
+    )
 
 with col2:
     total_distance = sum(flight.get('distance', 0) for flight in st.session_state.flights)
-    st.metric("累计飞行里程（公里）", f"{total_distance:,.2f}")
+    distance_km = f"{total_distance:,.0f}"
+    ui.render_metric_card(
+        "🌍 累计飞行里程",
+        distance_km,
+        "公里"
+    )
 
 with col3:
     total_flight_time_minutes = sum(
@@ -529,33 +576,46 @@ with col3:
         for flight in st.session_state.flights
     )
     total_flight_time_str = format_total_flight_time(total_flight_time_minutes)
-    st.metric("累计飞行时间", total_flight_time_str)
-
-st.markdown("---")
+    ui.render_metric_card(
+        "⏱️ 累计飞行时间",
+        total_flight_time_str,
+        "总时长"
+    )
 
 # 显示地图
-st.subheader("飞行路线地图")
+st.markdown("")
+st.markdown("### 🌍 飞行路线地图")
+
 if st.session_state.flights:
     flight_map = create_flight_map(st.session_state.flights)
-    # 使用streamlit-folium渲染地图
-    st_folium(flight_map, width=1200, height=600)
+    # 使用streamlit-folium渲染地图，添加容器样式
+    ui.render_map_container()
+    st_folium(flight_map, width=1200, height=600, returned_objects=[])
+    ui.close_map_container()
     
-    
+    st.markdown("")
     # 显示航班列表（可选）
-    with st.expander("查看所有航班记录", expanded=True):
+    with st.expander("📋 查看所有航班记录", expanded=True):
         df = pd.DataFrame([
             {
                 '出发城市': flight['departure_city'],
                 '到达城市': flight['arrival_city'],
                 '日期': flight['date'],
-                '距离（公里）': flight.get('distance', 0),
+                '距离（公里）': f"{flight.get('distance', 0):,.0f}",
                 '飞行时间': format_flight_time(flight.get('flight_time'))
             }
-            for flight in st.session_state.flights
+            for flight in sorted(st.session_state.flights, key=lambda x: x['date'], reverse=True)
         ])
-        st.dataframe(df, use_container_width=True)
+        # 使用样式化的表格
+        st.dataframe(
+            df, 
+            use_container_width=True,
+            hide_index=True
+        )
 else:
-    st.info("暂无航班记录，请在左侧添加第一条航班记录")
+    st.info("💡 暂无航班记录，请在左侧添加第一条航班记录")
     # 显示空白地图
+    ui.render_map_container()
     empty_map = folium.Map(location=[39.9042, 116.4074], zoom_start=2)
-    st_folium(empty_map, width=1200, height=600)
+    st_folium(empty_map, width=1200, height=600, returned_objects=[])
+    ui.close_map_container()
