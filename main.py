@@ -582,14 +582,18 @@ with col3:
 
 # 第二排：去过的城市（长条框）
 st.markdown("")
-# 提取所有去过的城市（包括出发和到达城市）
-all_cities = set()
+# 统计每个城市出现的次数（包括作为出发城市和到达城市）
+city_counts = {}
 for flight in st.session_state.flights:
-    all_cities.add(flight['departure_city'])
-    all_cities.add(flight['arrival_city'])
+    # 统计出发城市
+    dep_city = flight['departure_city']
+    city_counts[dep_city] = city_counts.get(dep_city, 0) + 1
+    # 统计到达城市
+    arr_city = flight['arrival_city']
+    city_counts[arr_city] = city_counts.get(arr_city, 0) + 1
 
-# 渲染横向长条城市列表卡片
-ui.render_cities_card_horizontal(all_cities, card_type="purple")
+# 渲染横向长条城市列表卡片（按次数降序排列）
+ui.render_cities_card_horizontal(city_counts, card_type="purple")
 
 # 显示地图
 st.markdown("")

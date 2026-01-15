@@ -390,12 +390,12 @@ def render_cities_card(cities, card_type="purple"):
     """, unsafe_allow_html=True)
 
 
-def render_cities_card_horizontal(cities, card_type="purple"):
+def render_cities_card_horizontal(city_counts, card_type="purple"):
     """
     渲染横向长条城市列表卡片
     
     参数:
-        cities: 城市列表（已去重）
+        city_counts: 城市和次数的字典，格式为 {城市名: 次数}
         card_type: 卡片类型，用于设置边框颜色
     """
     # 根据类型选择颜色
@@ -407,13 +407,15 @@ def render_cities_card_horizontal(cities, card_type="purple"):
     }
     card_color = color_map.get(card_type, "#764ba2")
     
-    # 生成城市标签HTML
-    if cities:
+    # 生成城市标签HTML，按次数降序排列
+    if city_counts:
+        # 按次数降序排序，如果次数相同则按城市名排序
+        sorted_cities = sorted(city_counts.items(), key=lambda x: (-x[1], x[0]))
         city_tags_html = '<div class="cities-container">'
-        for city in sorted(cities):  # 按字母顺序排序
-            city_tags_html += f'<span class="city-tag">{city}</span>'
+        for city, count in sorted_cities:
+            city_tags_html += f'<span class="city-tag">{city} <span style="opacity: 0.8; font-weight: 600;">({count})</span></span>'
         city_tags_html += '</div>'
-        cities_count = len(cities)
+        cities_count = len(city_counts)
     else:
         city_tags_html = '<p style="color: #94a3b8; margin: 0.5rem 0; font-size: 0.9rem;">暂无城市记录</p>'
         cities_count = 0
