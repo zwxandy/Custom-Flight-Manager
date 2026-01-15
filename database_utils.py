@@ -7,7 +7,7 @@ import sqlite3
 import json
 
 # 数据库文件路径
-DB_FILE = 'flights.db'
+DB_FILE = 'flights_zwx.db'
 
 
 def init_database():

@@ -15,7 +15,7 @@ import ui
 
 # 页面配置
 st.set_page_config(
-    page_title="Xuan的私人航班管家",
+    page_title="SkyLink私人航班管家",
     page_icon="✈️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -262,11 +262,11 @@ with st.sidebar:
     with flight_time_col1:
         flight_time_hours = st.number_input("小时", min_value=0, value=0, step=1, key="flight_time_hours")
     with flight_time_col2:
-        flight_time_minutes = st.number_input("分钟", min_value=0, max_value=59, value=0, step=1, key="flight_time_minutes")
+        flight_time_minutes = st.number_input("分钟", min_value=0, max_value=59, value=0, step=1, key="flight_time_minutes", help="如果留空，则时间默认为0")
     
-    if st.button("添加航班", type="primary"):
+    if st.button("添加航班", type="primary", use_container_width=True):
         if not departure_city or not arrival_city:
-            st.error("请填写出发城市和到达城市")
+            st.error("⚠️ 请填写出发城市和到达城市")
         else:
             # 设置显示确认对话框
             st.session_state.show_add_confirm = True
@@ -408,11 +408,10 @@ with st.sidebar:
                         if st.button("❌ 取消", key=f"cancel_delete_{flight['id']}", use_container_width=True):
                             st.session_state.deleting_flight_id = None
                             st.rerun()
-                    st.markdown("---")
                 
                 # 编辑表单
                 if st.session_state.editing_flight_id == flight['id']:
-                    st.markdown("---")
+                    st.markdown("")
                     st.markdown("#### ✏️ 编辑航班记录")
                     st.markdown("")
                     
@@ -454,7 +453,7 @@ with st.sidebar:
                     with edit_col7:
                         if st.button("✅ 保存", key=f"save_{flight['id']}", type="primary", use_container_width=True):
                             if not edit_departure or not edit_arrival:
-                                st.error("请填写出发城市和到达城市")
+                                st.error("⚠️ 请填写出发城市和到达城市")
                             else:
                                 with st.spinner("正在更新..."):
                                     # 在按钮点击时从session_state重新读取输入框值（因为使用了key参数）
@@ -514,10 +513,6 @@ with st.sidebar:
                         if st.button("❌ 取消", key=f"cancel_{flight['id']}", use_container_width=True):
                             st.session_state.editing_flight_id = None
                             st.rerun()
-                    
-                    st.markdown("---")
-                else:
-                    st.markdown("---")
     else:
         st.info("暂无航班记录")
     
@@ -558,7 +553,8 @@ with col1:
     ui.render_metric_card(
         "✈️ 总航班次数",
         str(total_flights),
-        f"国内 {domestic_count} | 国际 {international_count}"
+        f"国内 {domestic_count} | 国际 {international_count}",
+        card_type="blue"
     )
 
 with col2:
@@ -567,7 +563,8 @@ with col2:
     ui.render_metric_card(
         "🌍 累计飞行里程",
         distance_km,
-        "公里"
+        "公里",
+        card_type="green"
     )
 
 with col3:
@@ -579,8 +576,20 @@ with col3:
     ui.render_metric_card(
         "⏱️ 累计飞行时间",
         total_flight_time_str,
-        "总时长"
+        "总时长",
+        card_type="orange"
     )
+
+# 第二排：去过的城市（长条框）
+st.markdown("")
+# 提取所有去过的城市（包括出发和到达城市）
+all_cities = set()
+for flight in st.session_state.flights:
+    all_cities.add(flight['departure_city'])
+    all_cities.add(flight['arrival_city'])
+
+# 渲染横向长条城市列表卡片
+ui.render_cities_card_horizontal(all_cities, card_type="purple")
 
 # 显示地图
 st.markdown("")

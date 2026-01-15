@@ -10,34 +10,78 @@ def load_custom_css():
     """加载自定义CSS样式"""
     st.markdown("""
     <style>
-        /* 主标题样式 */
+        /* 主标题样式 - 炫酷渐变色 */
         .main-title {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+            background-size: 200% 200%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.3rem;
+            background-clip: text;
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            animation: gradient-shift 4s ease infinite;
+            letter-spacing: 1px;
+            position: relative;
+            display: inline-block;
         }
         
-        /* 统计卡片样式 */
+        /* 渐变动画效果 - 让颜色流动起来 */
+        @keyframes gradient-shift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        /* 标题容器添加光晕效果 */
+        .main-title-wrapper {
+            position: relative;
+            display: inline-block;
+            filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.4));
+        }
+        
+        /* 统计卡片样式 - 扁平化设计 */
         .metric-card {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 0.8rem 1rem;
+            background: white;
+            padding: 0.8rem 1.2rem;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             border-left: 4px solid #667eea;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
         }
         
         .metric-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
         }
         
-        /* 侧边栏样式 */
+        /* 不同主题的统计卡片 */
+        .metric-card.card-blue {
+            border-left-color: #667eea;
+        }
+        
+        .metric-card.card-green {
+            border-left-color: #10b981;
+        }
+        
+        .metric-card.card-orange {
+            border-left-color: #f59e0b;
+        }
+        
+        /* 整体页面背景 */
+        .stApp {
+            background: #f5f5f5;
+        }
+        
+        /* 侧边栏样式 - 米黄色 */
         .sidebar .sidebar-content {
-            background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(180deg, #fef9e7 0%, #faf5e6 100%);
         }
         
         /* 按钮样式增强 */
@@ -46,11 +90,17 @@ def load_custom_css():
             font-weight: 600;
             transition: all 0.3s;
             border: none;
+            padding: 0.5rem 1rem;
         }
         
         .stButton > button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 侧边栏按钮样式 */
+        .sidebar .stButton > button {
+            font-size: 0.95rem;
         }
         
         /* 输入框样式 */
@@ -74,7 +124,7 @@ def load_custom_css():
             background: white;
             padding: 1rem;
             border-radius: 10px;
-            margin-bottom: 1rem;
+            margin-bottom: 0.6rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             border-left: 3px solid #667eea;
             transition: all 0.3s;
@@ -139,6 +189,11 @@ def load_custom_css():
             padding-bottom: 2rem;
         }
         
+        /* 主内容区背景 - 浅灰色 */
+        .main {
+            background: #f5f5f5;
+        }
+        
         /* 减少标题和内容之间的间距 */
         h3 {
             margin-top: 0.5rem;
@@ -156,16 +211,43 @@ def load_custom_css():
             border-radius: 10px;
             font-weight: 600;
         }
+        
+        /* 城市标签样式 */
+        .city-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin: 0.3rem 0.3rem 0.3rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .city-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 城市列表容器 */
+        .cities-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            margin-top: 0.5rem;
+        }
     </style>
     """, unsafe_allow_html=True)
 
 
 def render_main_title():
-    """渲染主标题"""
-    st.markdown('<h1 class="main-title">✈️ Xuan的私人航班管家</h1>', unsafe_allow_html=True)
+    """渲染主标题 - 炫酷渐变色效果"""
+    st.markdown('<div class="main-title-wrapper"><h1 class="main-title">✈️ SkyLink航班管家</h1></div>', unsafe_allow_html=True)
 
 
-def render_metric_card(title, value, subtitle=""):
+def render_metric_card(title, value, subtitle="", card_type="blue"):
     """
     渲染统计卡片
     
@@ -173,12 +255,21 @@ def render_metric_card(title, value, subtitle=""):
         title: 卡片标题（包含图标）
         value: 主要数值
         subtitle: 副标题/说明文字
+        card_type: 卡片类型 ("blue", "green", "orange")
     """
+    # 根据类型选择颜色
+    color_map = {
+        "blue": "#667eea",
+        "green": "#10b981",
+        "orange": "#f59e0b"
+    }
+    card_color = color_map.get(card_type, "#667eea")
+    
     st.markdown(f"""
-    <div class="metric-card">
-        <h3 style="color: #667eea; margin: 0 0 0.3rem 0; font-size: 0.9rem; font-weight: 600;">{title}</h3>
-        <h2 style="color: #2d3748; margin: 0.2rem 0; font-size: 1.8rem; font-weight: 700;">{value}</h2>
-        <p style="color: #718096; margin: 0.3rem 0 0 0; font-size: 0.75rem;">{subtitle}</p>
+    <div class="metric-card card-{card_type}">
+        <h3 style="color: {card_color}; margin: 0 0 0.2rem 0; font-size: 1.0rem; font-weight: 600; letter-spacing: 0.3px;">{title}</h3>
+        <h2 style="color: #1a202c; margin: 0.1rem 0; font-size: 2.0rem; font-weight: 700; line-height: 1.1;">{value}</h2>
+        <p style="color: #64748b; margin: 0.2rem 0 0 0; font-size: 0.8rem; font-weight: 500;">{subtitle}</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -196,16 +287,27 @@ def render_flight_card(departure_city, arrival_city, date, distance, flight_time
     """
     st.markdown(f"""
     <div class="flight-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-            <h4 style="color: #2d3748; margin: 0;">
-                <span style="color: #667eea;">{departure_city}</span> 
-                → 
-                <span style="color: #764ba2;">{arrival_city}</span>
+        <div style="margin-bottom: 0.8rem;">
+            <h4 style="color: #1a202c; margin: 0; font-size: 1.1rem; font-weight: 600;">
+                <span style="color: #667eea; font-weight: 700;">{departure_city}</span> 
+                <span style="color: #94a3b8; margin: 0 0.5rem;">→</span>
+                <span style="color: #ff6b35; font-weight: 700;">{arrival_city}</span>
             </h4>
         </div>
-        <p style="color: #718096; font-size: 0.85rem; margin: 0.5rem 0;">
-            📅 {date} | 📏 {distance:.0f} km | ⏱️ {flight_time_str}
-        </p>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.3rem;">
+                <span style="font-size: 0.9rem;">📅</span>
+                <span style="color: #475569; font-size: 0.85rem; font-weight: 500;">{date}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.3rem;">
+                <span style="font-size: 0.9rem;">📏</span>
+                <span style="color: #475569; font-size: 0.85rem; font-weight: 500;">{distance:.0f} km</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.3rem;">
+                <span style="font-size: 0.9rem;">⏱️</span>
+                <span style="color: #475569; font-size: 0.85rem; font-weight: 500;">{flight_time_str}</span>
+            </div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -248,4 +350,81 @@ def render_map_container():
 def close_map_container():
     """关闭地图容器的结束标签"""
     st.markdown('</div>', unsafe_allow_html=True)
+
+
+def render_cities_card(cities, card_type="purple"):
+    """
+    渲染城市列表卡片（垂直布局）
+    
+    参数:
+        cities: 城市列表（已去重）
+        card_type: 卡片类型，用于设置边框颜色
+    """
+    # 根据类型选择颜色
+    color_map = {
+        "blue": "#667eea",
+        "green": "#10b981",
+        "orange": "#f59e0b",
+        "purple": "#764ba2"
+    }
+    card_color = color_map.get(card_type, "#764ba2")
+    
+    # 生成城市标签HTML
+    if cities:
+        city_tags_html = '<div class="cities-container">'
+        for city in sorted(cities):  # 按字母顺序排序
+            city_tags_html += f'<span class="city-tag">{city}</span>'
+        city_tags_html += '</div>'
+        cities_count = len(cities)
+    else:
+        city_tags_html = '<p style="color: #94a3b8; margin: 0.5rem 0; font-size: 0.9rem;">暂无城市记录</p>'
+        cities_count = 0
+    
+    st.markdown(f"""
+    <div class="metric-card card-{card_type}">
+        <h3 style="color: {card_color}; margin: 0 0 0.4rem 0; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.3px;">🌆 去过的城市</h3>
+        <h2 style="color: #1a202c; margin: 0.3rem 0; font-size: 2rem; font-weight: 700; line-height: 1.2;">{cities_count}</h2>
+        <p style="color: #64748b; margin: 0.4rem 0 0 0; font-size: 0.8rem; font-weight: 500;">共 {cities_count} 个城市</p>
+        {city_tags_html}
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def render_cities_card_horizontal(cities, card_type="purple"):
+    """
+    渲染横向长条城市列表卡片
+    
+    参数:
+        cities: 城市列表（已去重）
+        card_type: 卡片类型，用于设置边框颜色
+    """
+    # 根据类型选择颜色
+    color_map = {
+        "blue": "#667eea",
+        "green": "#10b981",
+        "orange": "#f59e0b",
+        "purple": "#764ba2"
+    }
+    card_color = color_map.get(card_type, "#764ba2")
+    
+    # 生成城市标签HTML
+    if cities:
+        city_tags_html = '<div class="cities-container">'
+        for city in sorted(cities):  # 按字母顺序排序
+            city_tags_html += f'<span class="city-tag">{city}</span>'
+        city_tags_html += '</div>'
+        cities_count = len(cities)
+    else:
+        city_tags_html = '<p style="color: #94a3b8; margin: 0.5rem 0; font-size: 0.9rem;">暂无城市记录</p>'
+        cities_count = 0
+    
+    st.markdown(f"""
+    <div class="metric-card card-{card_type}" style="padding: 1rem 1.4rem;">
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+            <h3 style="color: {card_color}; margin: 0; font-size: 1.0rem; font-weight: 600; letter-spacing: 0.3px; white-space: nowrap;">🌆 去过的城市</h3>
+            <span style="color: #64748b; font-size: 0.85rem; font-weight: 500;">共 {cities_count} 个城市</span>
+        </div>
+        {city_tags_html}
+    </div>
+    """, unsafe_allow_html=True)
 
